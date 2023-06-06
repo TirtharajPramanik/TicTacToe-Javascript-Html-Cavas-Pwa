@@ -6,17 +6,40 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tic Tac Toe</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            margin: auto;
+            display: block;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 32px;
+            margin-bottom: 64px;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+    </style>
 </head>
 
 <body>
-    <h1 style="text-align: center; margin-bottom: 64px;">Tic Tac Toe</h1>
-    <canvas width="600" height="600" ; style="margin: auto; display: block;"></canvas>
+    <h1> Tic Tac Toe</h1>
+    <canvas></canvas>
     <script>
         // Draw Grid
         canvas = document.getElementsByTagName('canvas')[0]
+        if (innerWidth < 700) { canvas.width = innerWidth; canvas.height = innerWidth }
+        else { canvas.width = innerWidth / 2; canvas.height = innerWidth / 2 }
+
         ctx = canvas.getContext('2d')
-        ctx.strokeStyle = 'red'
-        ctx.lineWidth = 8;
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.strokeStyle = 'red'; ctx.lineWidth = 8;
+
         x = 0; xd = canvas.width / 3
         for (i = 0; i < 2; i++) {
             x += xd
@@ -33,10 +56,6 @@
         x = undefined; y = undefined
 
         // Game Play
-        function gameover() {
-            document.getElementsByTagName('h1')[0].textContent = 'Game Over'
-            canvas.onclick = undefined
-        }
         grid = [
             [0, 0, 0],
             [0, 0, 0],
@@ -65,7 +84,7 @@
                 ctx.beginPath()
                 if (turn == -1) {
                     turn = 1
-                    ctx.ellipse(dx - xd / 2, dy - yd / 2, 50, 75, Math.PI / 4, 0, 2 * Math.PI);
+                    ctx.ellipse(dx - xd / 2, dy - yd / 2, canvas.width / 10, canvas.height / 8, Math.PI / 4, 0, 2 * Math.PI);
                 } else {
                     turn = -1
                     ctx.moveTo(dx - xd + 30, dy - yd + 30)
@@ -81,22 +100,66 @@
                 connect = true
                 for (i of [0, 1, 2])
                     if (grid[i][y] != grid[x][y]) { connect = false; break }
-                if (connect) gameover()
+                if (connect) gameover(() => {
+                    tm = 0
+                    for (i = y; i >= 0; i--)
+                        tm += yd
+                    tm -= yd / 2
+                    ctx.beginPath()
+                    ctx.moveTo(0, tm)
+                    ctx.lineTo(canvas.width, tm)
+                    ctx.stroke()
+                })
+                else {
+                    // Vertical
+                    connect = true
+                    for (i of [0, 1, 2])
+                        if (grid[x][i] != grid[x][y]) { connect = false; break }
+                    if (connect) gameover(() => {
+                        tm = 0
+                        for (i = x; i >= 0; i--)
+                            tm += xd
+                        tm -= xd / 2
+                        ctx.beginPath()
+                        ctx.moveTo(tm, 0)
+                        ctx.lineTo(tm, canvas.height)
+                        ctx.stroke()
+                    })
+                    else {
+                        // Diagonal LTR \
+                        if ((x == 0 && y == 0) || (x == 1 && y == 1) || (x == 2 && y == 2))
+                            if (grid[0][0] == grid[x][y] && grid[1][1] == grid[x][y] && grid[2][2] == grid[x][y])
+                                gameover(() => {
+                                    ctx.beginPath()
+                                    ctx.moveTo(0, 0)
+                                    ctx.lineTo(canvas.width, canvas.height)
+                                    ctx.stroke()
+                                })
 
-                // Vertical
-                connect = true
-                for (i of [0, 1, 2])
-                    if (grid[x][i] != grid[x][y]) { connect = false; break }
-                if (connect) gameover()
-
-                // Diagonal
-                if ((x == 0 && y == 0) || (x == 1 && y == 1) || (x == 2 && y == 2))
-                    if (grid[0][0] == grid[x][y] && grid[1][1] == grid[x][y] && grid[2][2] == grid[x][y])
-                        gameover()
-                if ((x == 0 && y == 2) || (x == 1 && y == 1) || (x == 2 && y == 0))
-                    if (grid[0][2] == grid[x][y] && grid[1][1] == grid[x][y] && grid[2][0] == grid[x][y])
-                        gameover()
+                        // Diagonal RTL /
+                        if ((x == 0 && y == 2) || (x == 1 && y == 1) || (x == 2 && y == 0))
+                            if (grid[0][2] == grid[x][y] && grid[1][1] == grid[x][y] && grid[2][0] == grid[x][y])
+                                gameover(() => {
+                                    ctx.beginPath()
+                                    ctx.moveTo(canvas.width, 0)
+                                    ctx.lineTo(0, canvas.height)
+                                    ctx.stroke()
+                                })
+                    }
+                }
             }
+        }
+
+        function gameover(drawPath) {
+            canvas.onclick = undefined
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
+            ctx.fillRect(0, 0, canvas.width, canvas.height)
+            colors = ['213555', '40128B', '116A7B', 'FF0060', '11009E']
+            colr = Math.floor(Math.random() * colors.length)
+            ctx.fillStyle = '#' + colors[colr]; colors.pop(colr)
+            ctx.strokeStyle = '#' + colors[Math.floor(Math.random() * colors.length)]
+            drawPath(); wd = canvas.width / 10; ctx.font = wd + "px Arial";
+            ctx.fillText('Game Over', canvas.width / 2 - wd * 2.5, canvas.height / 2)
         }
     </script>
 </body>
