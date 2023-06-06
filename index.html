@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+</head>
+
+<body>
+    <h1 style="text-align: center; margin-bottom: 64px;">Tic Tac Toe</h1>
+
+    <canvas width="600" height="600" ; style="margin: auto; display: block;"></canvas>
+
+    <script>
+        // Draw Grid
+
+        canvas = document.getElementsByTagName('canvas')[0]
+        ctx = canvas.getContext('2d')
+
+        ctx.strokeStyle = 'red'
+        ctx.lineWidth = 8;
+
+        x = 0; xd = canvas.width / 3
+        for (i = 0; i < 2; i++) {
+            x += xd
+            ctx.moveTo(x, 0)
+            ctx.lineTo(x, canvas.height)
+        }
+
+        y = 0; yd = canvas.height / 3
+        for (i = 0; i < 2; i++) {
+            y += yd
+            ctx.moveTo(0, y)
+            ctx.lineTo(canvas.width, y)
+        }
+
+        ctx.stroke()
+        x = undefined; y = undefined
+
+        // ----------------
+
+        grid = [
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+        ]
+
+        turn = -1
+        canvas.onclick = (ev) => {
+            x = 0; dx = 0
+            for (i = 3; i > 0; i--) {
+                dx += xd
+                if (ev.offsetX < dx) {
+                    x = 3 - i
+                    break
+                }
+            }
+
+            y = 0; dy = 0
+            for (i = 3; i > 0; i--) {
+                dy += yd
+                if (ev.offsetY < dy) {
+                    y = 3 - i
+                    break
+                }
+            }
+
+            // grid[x][y] = 1
+            // console.log(grid)
+
+            if (grid[x][y] == 0) {
+                grid[x][y] = turn
+                ctx.beginPath()
+                if (turn == -1) {
+                    turn = 1
+                    ctx.ellipse(dx - xd / 2, dy - yd / 2, 50, 75, Math.PI / 4, 0, 2 * Math.PI);
+                } else {
+                    turn = -1
+                    ctx.moveTo(dx - xd + 30, dy - yd + 30)
+                    ctx.lineTo(dx - 30, dy - 30)
+                    ctx.moveTo(dx - 30, dy - yd + 30)
+                    ctx.lineTo(dx - xd + 30, dy - 30)
+                }
+                ctx.stroke()
+            }
+
+        }
+    </script>
+</body>
+
+</html>
